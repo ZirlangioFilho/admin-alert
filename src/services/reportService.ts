@@ -40,7 +40,7 @@ export function subscribeReports(
         address: data.address,
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
-        locationUpdatesActive: data.locationUpdatesActive ?? false,
+        locationUpdatesActive: data.locationUpdatesActive === true,
         locationStoppedAt: parseTimestamp(data.locationStoppedAt),
       });
     });
