@@ -2,6 +2,12 @@
 
 O **Admin Alert** só aceita login de usuários com `role: "admin"` no Firestore.
 
+## Rotas e segurança
+
+- **`/login`** — tela de entrada (pública). Se já houver sessão Firebase com `role: "admin"`, o app redireciona para `/admin`.
+- **`/admin`** — painel (rota **privada**): só acessível com **Firebase Authentication** ativo e documento `users/{uid}` com `role: "admin"`. Não usa token em `localStorage` como o painel web policial; a sessão é a do Firebase Auth.
+- **`/`** — redireciona para `/admin` (que exige login).
+
 ## Onde fica a senha?
 
 A **senha não é guardada no Firestore** (e não deve ser colocada em nenhum documento).
