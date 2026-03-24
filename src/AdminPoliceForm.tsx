@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import AdminPoliceList from "./AdminPoliceList";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db, secondaryAuth } from "./firebase";
 
@@ -16,7 +17,6 @@ export default function AdminPoliceForm({
 }: AdminPoliceFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,7 +29,7 @@ export default function AdminPoliceForm({
     setError("");
     setSuccess("");
 
-    if (!name.trim() || !phone.trim() || !address.trim() || !email.trim() || !password || !confirmPassword) {
+    if (!name.trim() || !phone.trim() || !email.trim() || !password || !confirmPassword) {
       setError("Preencha todos os campos.");
       return;
     }
@@ -59,7 +59,6 @@ export default function AdminPoliceForm({
           uid,
           name: name.trim(),
           phone: phone.trim(),
-          address: address.trim(),
           email: email.trim(),
           role: "police",
           createdBy: "admin-alert",
@@ -70,7 +69,6 @@ export default function AdminPoliceForm({
 
       setName("");
       setPhone("");
-      setAddress("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
@@ -89,94 +87,142 @@ export default function AdminPoliceForm({
       style={{
         minHeight: "100vh",
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
         justifyContent: "center",
         background: "#0f172a",
+        overflow: "hidden",
         color: "#e2e8f0",
         fontFamily: "Inter, system-ui, Arial, sans-serif",
-        padding: 24,
+        paddingInline: 24,
+        gap: 12,
       }}
     >
-      <section
-        style={{
-          width: "100%",
-          maxWidth: 520,
-          background: "#111827",
-          border: "1px solid #334155",
-          borderRadius: 16,
-          padding: 24,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 16 }}>
-          <div>
-            <h1 style={{ margin: 0, marginBottom: 8, fontSize: 22 }}>Cadastrar policial</h1>
-            <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
-              Logado como administrador: <strong style={{ color: "#e2e8f0" }}>{adminEmail}</strong>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowLogoutConfirm(true)}
-            style={{
-              border: "1px solid #475569",
-              borderRadius: 10,
-              padding: "8px 12px",
-              background: "transparent",
-              color: "#94a3b8",
-              cursor: "pointer",
-              fontSize: 12,
-            }}
-          >
-            Sair
-          </button>
-        </div>
 
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <p style={{ marginTop: 0, marginBottom: 20, color: "#94a3b8", fontSize: 14 }}>
-          Você permanece logado após cada cadastro. Use <strong>Sair</strong> para encerrar a sessão ou
-          atualize a página (F5) para recarregar o app.
+          Você permanece logado após cada cadastro. Use <strong>Sair</strong> para encerrar a sessão.
         </p>
 
-        <div style={{ display: "grid", gap: 12 }}>
-          <input placeholder="Nome do policial" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-          <input placeholder="Email institucional" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
-          <input placeholder="Número do celular" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} />
-          <input placeholder="Endereço" value={address} onChange={(e) => setAddress(e.target.value)} style={inputStyle} />
-          <input
-            placeholder="Senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            placeholder="Confirmar senha"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            style={inputStyle}
-          />
-
-          <button
-            type="button"
-            onClick={handleCreatePolice}
-            disabled={loading}
+        <button
+          type="button"
+          onClick={() => setShowLogoutConfirm(true)}
+          style={{
+            border: "1px solid #475569",
+            borderRadius: 10,
+            padding: "8px 12px",
+            background: "#dc2626",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: 12,
+          }}
+        >
+          Sair
+        </button>
+      </div>
+      <div style={{ width: "100%", maxWidth: 1200, display: "flex", gap: 16 }}>
+        {/* Coluna esquerda: cadastro */}
+        <section
+          style={{
+            width: 460,
+            maxWidth: "100%",
+            background: "#111827",
+            border: "1px solid #334155",
+            borderRadius: 16,
+            padding: 24,
+          }}
+        >
+          <div
             style={{
-              border: "none",
-              borderRadius: 10,
-              padding: "12px 14px",
-              background: "#2563eb",
-              color: "white",
-              fontWeight: 600,
-              cursor: "pointer",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: 12,
+              marginBottom: 16,
             }}
           >
-            {loading ? "Cadastrando..." : "Cadastrar policial"}
-          </button>
+            <div style={{ display: "flex", flexDirection: "column", width: '100%' }}>
+              <h1 style={{ margin: 0, marginBottom: 8, fontSize: 22 }}>
+                Cadastro policial
+              </h1>
+              <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
+                Logado como administrador:{" "}
+                <strong style={{ color: "#e2e8f0" }}>{adminEmail}</strong>
+              </p>
+            </div>
+          </div>
 
-          {success && <p style={{ color: "#86efac", margin: 0 }}>{success}</p>}
-          {error && <p style={{ color: "#fca5a5", margin: 0 }}>{error}</p>}
-        </div>
-      </section>
+          <div style={{ display: "grid", gap: 12 }}>
+            <input
+              placeholder="Nome do policial"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="Email institucional"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="Número do celular"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="Confirmar senha"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={inputStyle}
+            />
+
+            <button
+              type="button"
+              onClick={handleCreatePolice}
+              disabled={loading}
+              style={{
+                border: "none",
+                borderRadius: 10,
+                padding: "12px 14px",
+                background: "#2563eb",
+                color: "white",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {loading ? "Cadastrando..." : "Cadastrar policial"}
+            </button>
+
+            {success && <p style={{ color: "#86efac", margin: 0 }}>{success}</p>}
+            {error && <p style={{ color: "#fca5a5", margin: 0 }}>{error}</p>}
+          </div>
+        </section>
+
+        {/* Coluna direita: lista */}
+        <section
+          style={{
+            flex: 1,
+            background: "#111827",
+            border: "1px solid #334155",
+            borderRadius: 16,
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            padding: 24,
+            minWidth: 320,
+          }}
+        >
+          <AdminPoliceList />
+        </section>
+      </div>
 
       {showLogoutConfirm && (
         <div
