@@ -112,7 +112,7 @@ export default function AdminPoliceList() {
           placeholder="Buscar por nome ou e-mail"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ border: 'none', borderRadius: 10, border: "1px solid #334155", background: "#0b1220", color: "#e2e8f0", padding: "10px 12px", fontSize: 13, outline: "none"}}
+          style={{ borderRadius: 10, border: "1px solid #334155", background: "#0b1220", color: "#e2e8f0", padding: "10px 12px", fontSize: 13, outline: "none"}}
         />
         {editing && (
           <div
